@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import time
+import os
 from datetime import datetime
 
 import requests
@@ -10,7 +11,8 @@ from rgbmatrix import RGBMatrix, RGBMatrixOptions, graphics
 # =========================
 
 STATION_CODE = "NTN"
-API_URL = f"https://huxley2.azurewebsites.net/departures/{STATION_CODE}/10"
+API_URL = f"https://api1.raildata.org.uk/1010-live-departure-board-dep1_2/LDBWS/api/20220120/GetDepartureBoard/{STATION_CODE}"
+API_KEY = os.environ.get("RDM_KEY", "")
 
 NUM_TRAINS_TO_SHOW = 2
 DISPLAY_SECONDS_PER_TRAIN = 5       # How long to show each train (if no scroll)
@@ -35,7 +37,7 @@ options.brightness = 60
 options.gpio_slowdown = 4
 
 # Font paths (relative to script working directory)
-FONT_PATH_MAIN = "fonts/4x6.bdf"   # Train text
+FONT_PATH_MAIN = "fonts/5x8.bdf"   # Train text
 FONT_PATH_CLOCK = "fonts/5x8.bdf"  # Clock text
 
 
@@ -46,7 +48,7 @@ FONT_PATH_CLOCK = "fonts/5x8.bdf"  # Clock text
 def fetch_services():
     """Fetch departure board data from Huxley2 API."""
     try:
-        response = requests.get(API_URL, timeout=5)
+        response = requests.get(API_URL, headers={"x-apikey": API_KEY, "User-Agent": "trainboard/1.0"}, timeout=5)
         response.raise_for_status()
         data = response.json()
         services = data.get("trainServices") or []
